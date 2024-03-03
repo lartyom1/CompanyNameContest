@@ -1,6 +1,6 @@
 ﻿using CompanyNameContest.Interfaces;
 
-namespace CompanyNameContest.Reporter
+namespace CompanyNameContest.Report
 {
     public class Reporter : IReporter
     {

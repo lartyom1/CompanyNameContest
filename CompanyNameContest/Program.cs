@@ -1,6 +1,6 @@
 using CompanyNameContest.Interfaces;
 using CompanyNameContest.Report;
-using CompanyNameContest.Reporter;
+using CompanyNameContest.Report;
 
 var builder = WebApplication.CreateBuilder(args);
 
