@@ -18,7 +18,14 @@ namespace CompanyNameContest.Report
         public void ReportTimeout(int id)
         {
             Console.WriteLine($"timeout report id:{id}");
-
         }
+
+        //todo
+        //write to file
+        //THREADSAFE!!!
+        //semaphore slim or smth
+
+        //...
+        //different filenames it's ?ok
     }
 }
