@@ -12,7 +12,7 @@ namespace CompanyNameContest.Controllers
         private readonly IReportBuilder _reportBuilder;
 
         private ReportService reportService = new ReportService();
-
+      
         public ReportController(IReportBuilder reportBuilder)
         {
             _reportBuilder = reportBuilder;

@@ -1,11 +1,10 @@
 ﻿using CompanyNameContest.Interfaces;
-using CompanyNameContest.Reporter;
 
 namespace CompanyNameContest.Report
 {
     public class ReportBuilder : IReportBuilder
     {
-        private Reporter.Reporter reporter = new Reporter.Reporter();
+      
         public byte[] Build()
         {
 

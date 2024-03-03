@@ -6,6 +6,7 @@ namespace CompanyNameContest.Services
     {
 
         private ReportBuilder reportBuilder = new ReportBuilder();
+        private Reporter.Reporter reporter = new Reporter.Reporter();
 
         private Dictionary<int, (Task<byte[]>, CancellationTokenSource)> reports =
             new Dictionary<int, (Task<byte[]>, CancellationTokenSource)>();
@@ -18,6 +19,26 @@ namespace CompanyNameContest.Services
 
             var tt = Task.Run(() =>
                 reportBuilder.Build(), token);
+
+            tt.ContinueWith(x =>
+            {
+                reporter.ReportSuccess(x.Result, i);
+            },
+            token,
+            TaskContinuationOptions.OnlyOnRanToCompletion,
+            TaskScheduler.Default
+            );
+
+            tt.ContinueWith(x =>
+            {
+                reporter.ReportError(i);
+            },
+            token,
+            TaskContinuationOptions.OnlyOnFaulted,//aka exception in task
+            TaskScheduler.Default
+            );
+
+            //?cancel after
 
             reports.Add(i, (tt, cancellationTokenSource));
             return i++;
