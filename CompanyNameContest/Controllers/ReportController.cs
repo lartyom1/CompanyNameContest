@@ -10,24 +10,26 @@ namespace CompanyNameContest.Controllers
     public class ReportController : Controller//, IReportBuilder
     {
         private readonly IReportBuilder _reportBuilder;
+        private /*readonly */ReportService _reportService;
 
-        private ReportService reportService = new ReportService();
-      
-        public ReportController(IReportBuilder reportBuilder)
+        //private ReportService reportService = new ReportService();
+
+        //public ReportController(IReportBuilder reportBuilder)
+        public ReportController(IReportBuilder reportBuilder, ReportService reportService)
         {
             _reportBuilder = reportBuilder;
+            _reportService = reportService;
         }
 
-        // GET: ReportController/Get
+        // GET: report/build
         [HttpGet("build")]//attribute
-        public int Build() => reportService.Create();
-
+        public int Build() => _reportService.Create();
 
         public IActionResult Stop(int id)
         {
             try
             {
-                reportService.Terminate(id);
+                _reportService.Terminate(id);
                 return Ok();
             }
             catch (NoReportException)

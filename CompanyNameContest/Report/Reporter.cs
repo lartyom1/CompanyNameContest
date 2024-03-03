@@ -6,17 +6,19 @@ namespace CompanyNameContest.Report
     {
         public void ReportError(int id)
         {
-            throw new NotImplementedException();
+            Console.WriteLine($"fail report id:{id}");
         }
 
         public void ReportSuccess(byte[] data, int id)
         {
-            throw new NotImplementedException();
+            Console.WriteLine($"success report id:{id}, " +
+                              $"bytes to utf8: {System.Text.Encoding.UTF8.GetString(data)}");
         }
 
         public void ReportTimeout(int id)
         {
-            throw new NotImplementedException();
+            Console.WriteLine($"timeout report id:{id}");
+
         }
     }
 }

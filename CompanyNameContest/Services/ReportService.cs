@@ -5,15 +5,15 @@ namespace CompanyNameContest.Services
     public class ReportService
     {
 
-        private ReportBuilder reportBuilder = new Report.ReportBuilder();
-        private Reporter reporter = new Report.Reporter();
+        private ReportBuilder reportBuilder = new ReportBuilder();
+        private Reporter reporter = new Reporter();
 
         private Dictionary<int, (Task<byte[]>, CancellationTokenSource)> reports =
             new Dictionary<int, (Task<byte[]>, CancellationTokenSource)>();
 
-        private int i = 0;
-
-        private const int n = 30000; // less than 45k to hit timeout
+        private int i;
+        //private const int n = 30000; // less than 45k to hit timeout
+        private const int n = 8000;
         public int Create()
         {
             CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
@@ -23,12 +23,16 @@ namespace CompanyNameContest.Services
 
             CancellationToken token = cancellationTokenSource.Token;
 
+            int id = new int();
+            id = i;
+
+            Console.WriteLine($"run rep{id}");
             var tt = Task.Run(() =>
                 reportBuilder.Build(), token);
 
             tt.ContinueWith(x =>
             {
-                reporter.ReportSuccess(x.Result, i);
+                reporter.ReportSuccess(x.Result, id);
             },
                 token,
                 TaskContinuationOptions.OnlyOnRanToCompletion,
@@ -37,7 +41,7 @@ namespace CompanyNameContest.Services
 
             tt.ContinueWith(x =>
             {
-                reporter.ReportError(i);
+                reporter.ReportError(id);
             },
                 token,
                 TaskContinuationOptions.OnlyOnFaulted, // aka exception in task
@@ -47,15 +51,17 @@ namespace CompanyNameContest.Services
             //?cancel after
             tt.ContinueWith(x =>
             {
-                reporter.ReportError(i);
+                reporter.ReportTimeout(id);
             },
+                //CancellationToken.None,
                 token,
-                TaskContinuationOptions.OnlyOnCanceled, // cancelled by user or timeout
+                TaskContinuationOptions.OnlyOnCanceled, // canceled by user or timeout
                 TaskScheduler.Default
             );
 
-            reports.Add(i, (tt, cancellationTokenSource));
-            return i++;
+            reports.Add(id, (tt, cancellationTokenSource));
+            i++;
+            return id;
         }
 
         public void Terminate(int id)
