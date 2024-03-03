@@ -20,7 +20,7 @@ namespace CompanyNameContest.Controllers
 
         // GET: ReportController/Get
         [HttpGet("build")]//attribute
-        public int Build() => reportService.CreateAction();
+        public int Build() => reportService.Create();
 
 
         public IActionResult Stop(int id)

@@ -11,7 +11,7 @@ namespace CompanyNameContest.Services
             new Dictionary<int, (Task<byte[]>, CancellationTokenSource)>();
 
         private int i = 0;
-        public int CreateAction()
+        public int Create()
         {
             CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
             CancellationToken token = cancellationTokenSource.Token;
@@ -23,7 +23,6 @@ namespace CompanyNameContest.Services
             return i++;
         }
 
- 
         public void Terminate(int id)
         {
             if (reports.ContainsKey(id))
