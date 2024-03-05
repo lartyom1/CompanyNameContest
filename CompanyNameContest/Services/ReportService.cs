@@ -1,11 +1,12 @@
 ﻿using CompanyNameContest.Report;
+using System.Threading.Tasks;
 
 namespace CompanyNameContest.Services
 {
     public class ReportService
     {
 
-        private ReportBuilder reportBuilder = new ReportBuilder();
+        ///private ReportBuilder reportBuilder = new ReportBuilder();
         private Reporter reporter = new Reporter();
 
         private Dictionary<int, (Task<byte[]>, CancellationTokenSource)> reports =
@@ -19,16 +20,19 @@ namespace CompanyNameContest.Services
             CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
 
             cancellationTokenSource.CancelAfter(n); // task will be cancelled
-                                                    // ?not possible to determine user or timeout cancel
-
+            //                                        // ?not possible to determine user or timeout cancel
             CancellationToken token = cancellationTokenSource.Token;
+
+
+            //CancellationTokenSource cancellationTokenSourceContinue = new CancellationTokenSource(n);
+            //CancellationToken tokenContinue = cancellationTokenSourceContinue.Token;
 
             int id = new int();
             id = i;
 
             Console.WriteLine($"run rep{id}");
             var tt = Task.Run(() =>
-                reportBuilder.Build(), token);
+                new ReportBuilder() { _token = token }.Build(), token);
 
             tt.ContinueWith(x =>
             {
@@ -36,28 +40,38 @@ namespace CompanyNameContest.Services
             },
                 token,
                 TaskContinuationOptions.OnlyOnRanToCompletion,
-                TaskScheduler.Default
+                TaskScheduler.Current
             );
 
             tt.ContinueWith(x =>
             {
-                reporter.ReportError(id);
+                if (tt.Exception.GetBaseException().GetType() == typeof(TaskCanceledException))
+                {
+                    reporter.ReportTimeout(id);
+                }
+                else
+                {
+                    reporter.ReportError(id);
+                }
             },
-                token,
+                //token,
+                CancellationToken.None,
                 TaskContinuationOptions.OnlyOnFaulted, // aka exception in task
-                TaskScheduler.Default
+                TaskScheduler.Current
             );
 
-            //?cancel after
-            tt.ContinueWith(x =>
-            {
-                reporter.ReportTimeout(id);
-            },
-                //CancellationToken.None,
-                token,
-                TaskContinuationOptions.OnlyOnCanceled, // canceled by user or timeout
-                TaskScheduler.Default
-            );
+            ////?cancel after
+            //tt.ContinueWith(x =>
+            //{
+            //    if (tt.IsCanceled)
+            //    {
+            //        reporter.ReportTimeout(id);
+            //    }
+            //},
+            //    CancellationToken.None,
+            //    TaskContinuationOptions.None, // canceled by user or timeout
+            //    TaskScheduler.Current
+            //);
 
             reports.Add(id, (tt, cancellationTokenSource));
             i++;
