@@ -20,7 +20,8 @@ namespace CompanyNameContest.Services
             CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
 
             cancellationTokenSource.CancelAfter(n); // task will be cancelled
-            //                                        // ?not possible to determine user or timeout cancel
+                                                    // ?not possible to determine user or timeout cancel
+                                                    // TWO TOKENS
             CancellationToken token = cancellationTokenSource.Token;
 
 
@@ -32,7 +33,7 @@ namespace CompanyNameContest.Services
 
             Console.WriteLine($"run rep{id}");
             var tt = Task.Run(() =>
-                new ReportBuilder() { _token = token }.Build(), token);
+                new ReportBuilder(token)/* { _token = token }*/.Build(), token);
 
             tt.ContinueWith(x =>
             {

@@ -1,23 +1,17 @@
-﻿using CompanyNameContest.Interfaces;
-using CompanyNameContest.Services;
+﻿using CompanyNameContest.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CompanyNameContest.Controllers
 {
-
     [ApiController]
     [Route("[controller]")] //report
-    public class ReportController : Controller//, IReportBuilder
+    public class ReportController : Controller
     {
-        private readonly IReportBuilder _reportBuilder;
         private /*readonly */ReportService _reportService;
 
-        //private ReportService reportService = new ReportService();
-
-        //public ReportController(IReportBuilder reportBuilder)
-        public ReportController(IReportBuilder reportBuilder, ReportService reportService)
+        public ReportController(/*IReportBuilder reportBuilder,*/ ReportService reportService)
         {
-            _reportBuilder = reportBuilder;
+            //_reportBuilder = reportBuilder;
             _reportService = reportService;
         }
 

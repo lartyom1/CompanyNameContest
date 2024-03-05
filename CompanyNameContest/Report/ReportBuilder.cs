@@ -4,10 +4,11 @@ namespace CompanyNameContest.Report
 {
     public class ReportBuilder : IReportBuilder
     {
-        //private CancellationToken _token;
-        //public ReportBuilder(CancellationToken token) { _token = token; }
+        private CancellationToken _token;
+        
+        public ReportBuilder(CancellationToken token) { _token = token; }
 
-        public CancellationToken _token { get; set; }
+        //public CancellationToken _token { get; set; }
 
         public byte[] Build()
         {

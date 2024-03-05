@@ -15,7 +15,7 @@ builder.Services.AddEndpointsApiExplorer();
 
 
 
-builder.Services.AddSingleton<IReportBuilder, ReportBuilder>();
+//builder.Services.AddSingleton<IReportBuilder, ReportBuilder>();
 builder.Services.AddSingleton<IReporter, Reporter>();
 
 builder.Services.AddSingleton<ReportService>();//?
