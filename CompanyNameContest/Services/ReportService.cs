@@ -1,4 +1,5 @@
-﻿using CompanyNameContest.Report;
+﻿using CompanyNameContest.Interfaces;
+using CompanyNameContest.Report;
 using System.Threading.Tasks;
 
 namespace CompanyNameContest.Services
@@ -9,44 +10,73 @@ namespace CompanyNameContest.Services
         ///private ReportBuilder reportBuilder = new ReportBuilder();
         private Reporter reporter = new Reporter();
 
-        private Dictionary<int, (Task<byte[]>, CancellationTokenSource)> reports =
-            new Dictionary<int, (Task<byte[]>, CancellationTokenSource)>();
+        //private Dictionary<int, (Task<byte[]>, CancellationTokenSource)> reports =
+        //    new Dictionary<int, (Task<byte[]>, CancellationTokenSource)>();
+
+        private Dictionary<int, CancellationTokenSource> reports2 =
+        new Dictionary<int, CancellationTokenSource>();
 
         private int i;
         //private const int n = 30000; // less than 45k to hit timeout
         private const int n = 8000;
-        public int Create()
+        public int Create(/*ReportBuilder2 rb*/)
         {
             CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
-
-            cancellationTokenSource.CancelAfter(n); // task will be cancelled
-                                                    // ?not possible to determine user or timeout cancel
-                                                    // TWO TOKENS
+            cancellationTokenSource.CancelAfter(n);
             CancellationToken token = cancellationTokenSource.Token;
-
-
-            //CancellationTokenSource cancellationTokenSourceContinue = new CancellationTokenSource(n);
-            //CancellationToken tokenContinue = cancellationTokenSourceContinue.Token;
 
             int id = new int();
             id = i;
 
             Console.WriteLine($"run rep{id}");
-            var tt = Task.Run(() =>
-                new ReportBuilder(token)/* { _token = token }*/.Build(), token);
+            //var tt = Task.Run(() =>
+            //    new ReportBuilder(token).Build(), token);
 
-            tt.ContinueWith(x =>
+            //tt.ContinueWith(x =>
+            //{
+            //    reporter.ReportSuccess(x.Result, id);
+            //},
+            //    token,
+            //    TaskContinuationOptions.OnlyOnRanToCompletion,
+            //    TaskScheduler.Current
+            //);
+
+            //tt.ContinueWith(x =>
+            //{
+            //    if (tt.Exception.GetBaseException().GetType() == typeof(TaskCanceledException))
+            //    {
+            //        reporter.ReportTimeout(id);
+            //    }
+            //    else
+            //    {
+            //        reporter.ReportError(id);
+            //    }
+            //},
+            //    CancellationToken.None,
+            //    TaskContinuationOptions.OnlyOnFaulted, // aka exception in task
+            //    TaskScheduler.Current
+            //);
+            //reports.Add(id, (tt, cancellationTokenSource));
+
+
+            var rb = new ReportBuilder2();
+            var reportBuilder = rb;
+            rb.Token = token;
+
+            var reportTask = reportBuilder.BuildReport();
+
+            reportTask.ContinueWith(x =>
             {
-                reporter.ReportSuccess(x.Result, id);
+                reporter.ReportSuccess(reportTask.Result, id);
             },
                 token,
                 TaskContinuationOptions.OnlyOnRanToCompletion,
                 TaskScheduler.Current
             );
 
-            tt.ContinueWith(x =>
+            reportTask.ContinueWith(x =>
             {
-                if (tt.Exception.GetBaseException().GetType() == typeof(TaskCanceledException))
+                if (reportTask.Exception.GetBaseException().GetType() == typeof(TaskCanceledException))
                 {
                     reporter.ReportTimeout(id);
                 }
@@ -55,35 +85,31 @@ namespace CompanyNameContest.Services
                     reporter.ReportError(id);
                 }
             },
-                //token,
                 CancellationToken.None,
                 TaskContinuationOptions.OnlyOnFaulted, // aka exception in task
                 TaskScheduler.Current
             );
 
-            ////?cancel after
-            //tt.ContinueWith(x =>
-            //{
-            //    if (tt.IsCanceled)
-            //    {
-            //        reporter.ReportTimeout(id);
-            //    }
-            //},
-            //    CancellationToken.None,
-            //    TaskContinuationOptions.None, // canceled by user or timeout
-            //    TaskScheduler.Current
-            //);
+            reports2.Add(id, cancellationTokenSource);
 
-            reports.Add(id, (tt, cancellationTokenSource));
             i++;
             return id;
         }
 
         public void Terminate(int id)
         {
-            if (reports.ContainsKey(id))
+            //if (reports.ContainsKey(id))
+            //{
+            //    reports[id].Item2.Cancel();
+            //}
+            //else
+            //{
+            //    throw new NoReportException(id.ToString());
+            //}
+
+            if (reports2.ContainsKey(id))
             {
-                reports[id].Item2.Cancel();
+                reports2[id].Cancel();
             }
             else
             {

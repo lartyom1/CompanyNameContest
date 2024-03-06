@@ -14,11 +14,25 @@ builder.Services.AddEndpointsApiExplorer();
 
 
 
+//?transient/scoped
 
-//builder.Services.AddSingleton<IReportBuilder, ReportBuilder>();
-builder.Services.AddSingleton<IReporter, Reporter>();
+//builder.Services.AddScoped<IReportBuilder, ReportBuilder>();
 
-builder.Services.AddSingleton<ReportService>();//?
+//builder.Services.AddTransient<IReportBuilder, ReportBuilder2>();
+
+builder.Services.AddScoped<IReporter, Reporter>();
+
+//TODO
+//reportBuilder injection
+
+//https://stackoverflow.com/questions/40900414/dependency-injection-error-unable-to-resolve-service-for-type-while-attempting
+//builder.Services.AddScoped<IReportBuilder>(x => new ReportBuilder2());
+
+
+//builder.Services.AddSingleton<IReporter, Reporter>();
+builder.Services.AddSingleton<ReportService>();
+
+
 
 
 var app = builder.Build();

@@ -1,4 +1,6 @@
-﻿using CompanyNameContest.Services;
+﻿using CompanyNameContest.Interfaces;
+using CompanyNameContest.Report;
+using CompanyNameContest.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CompanyNameContest.Controllers
@@ -8,8 +10,10 @@ namespace CompanyNameContest.Controllers
     public class ReportController : Controller
     {
         private /*readonly */ReportService _reportService;
+        //private ReportBuilder2 _reportBuilder;//?
+        //private IReportBuilder _reportBuilder;//?
 
-        public ReportController(/*IReportBuilder reportBuilder,*/ ReportService reportService)
+        public ReportController(/*ReportBuilder2 reportBuilder,*/ ReportService reportService)
         {
             //_reportBuilder = reportBuilder;
             _reportService = reportService;
@@ -17,9 +21,10 @@ namespace CompanyNameContest.Controllers
 
         // GET: report/build
         [HttpGet("build")]//attribute
-        public int Build() => _reportService.Create();
+        public int Build() => _reportService.Create(/*_reportBuilder*/);
 
-        public IActionResult Stop(int id)
+        [HttpPost("stop")]
+        public IActionResult Stop([FromBody] int id)
         {
             try
             {
