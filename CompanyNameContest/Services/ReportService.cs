@@ -6,20 +6,15 @@ namespace CompanyNameContest.Services
 {
     public class ReportService
     {
-
-        ///private ReportBuilder reportBuilder = new ReportBuilder();
         private Reporter reporter = new Reporter();
 
-        //private Dictionary<int, (Task<byte[]>, CancellationTokenSource)> reports =
-        //    new Dictionary<int, (Task<byte[]>, CancellationTokenSource)>();
-
-        private Dictionary<int, CancellationTokenSource> reports2 =
+        private Dictionary<int, CancellationTokenSource> reports =
         new Dictionary<int, CancellationTokenSource>();
 
         private int i;
         //private const int n = 30000; // less than 45k to hit timeout
         private const int n = 8000;
-        public int Create(/*ReportBuilder2 rb*/)
+        public int Create(IReportBuilder reportBuilder)//?async
         {
             CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
             cancellationTokenSource.CancelAfter(n);
@@ -29,41 +24,10 @@ namespace CompanyNameContest.Services
             id = i;
 
             Console.WriteLine($"run rep{id}");
-            //var tt = Task.Run(() =>
-            //    new ReportBuilder(token).Build(), token);
 
-            //tt.ContinueWith(x =>
-            //{
-            //    reporter.ReportSuccess(x.Result, id);
-            //},
-            //    token,
-            //    TaskContinuationOptions.OnlyOnRanToCompletion,
-            //    TaskScheduler.Current
-            //);
+            reportBuilder.SetToken(token);
 
-            //tt.ContinueWith(x =>
-            //{
-            //    if (tt.Exception.GetBaseException().GetType() == typeof(TaskCanceledException))
-            //    {
-            //        reporter.ReportTimeout(id);
-            //    }
-            //    else
-            //    {
-            //        reporter.ReportError(id);
-            //    }
-            //},
-            //    CancellationToken.None,
-            //    TaskContinuationOptions.OnlyOnFaulted, // aka exception in task
-            //    TaskScheduler.Current
-            //);
-            //reports.Add(id, (tt, cancellationTokenSource));
-
-
-            var rb = new ReportBuilder2();
-            var reportBuilder = rb;
-            rb.Token = token;
-
-            var reportTask = reportBuilder.BuildReport();
+            var reportTask = Task.Run(() => reportBuilder.Build(), token);
 
             reportTask.ContinueWith(x =>
             {
@@ -90,7 +54,7 @@ namespace CompanyNameContest.Services
                 TaskScheduler.Current
             );
 
-            reports2.Add(id, cancellationTokenSource);
+            reports.Add(id, cancellationTokenSource);
 
             i++;
             return id;
@@ -98,18 +62,10 @@ namespace CompanyNameContest.Services
 
         public void Terminate(int id)
         {
-            //if (reports.ContainsKey(id))
-            //{
-            //    reports[id].Item2.Cancel();
-            //}
-            //else
-            //{
-            //    throw new NoReportException(id.ToString());
-            //}
 
-            if (reports2.ContainsKey(id))
+            if (reports.ContainsKey(id))
             {
-                reports2[id].Cancel();
+                reports[id].Cancel();
             }
             else
             {

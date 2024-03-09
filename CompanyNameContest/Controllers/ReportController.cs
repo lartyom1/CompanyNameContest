@@ -10,18 +10,18 @@ namespace CompanyNameContest.Controllers
     public class ReportController : Controller
     {
         private /*readonly */ReportService _reportService;
-        //private ReportBuilder2 _reportBuilder;//?
-        //private IReportBuilder _reportBuilder;//?
+        private IReportBuilder _reportBuilder;//?
 
-        public ReportController(/*ReportBuilder2 reportBuilder,*/ ReportService reportService)
+
+        public ReportController(IReportBuilder reportBuilder, ReportService reportService)
         {
-            //_reportBuilder = reportBuilder;
+            _reportBuilder = reportBuilder;
             _reportService = reportService;
         }
 
         // GET: report/build
         [HttpGet("build")]//attribute
-        public int Build() => _reportService.Create(/*_reportBuilder*/);
+        public int Build() => _reportService.Create(_reportBuilder);
 
         [HttpPost("stop")]
         public IActionResult Stop([FromBody] int id)
