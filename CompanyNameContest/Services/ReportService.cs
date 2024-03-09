@@ -12,13 +12,18 @@ namespace CompanyNameContest.Services
         new Dictionary<int, CancellationTokenSource>();
 
         private int i;
-        //private const int n = 30000; // less than 45k to hit timeout
-        private const int n = 8000;
-        public int Create(IReportBuilder reportBuilder)//?async
+        private const int n = 30000; // less than 45k to hit timeout
+        //private const int n = 8000;
+        public int Create(IReportBuilder reportBuilder)
         {
             CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
             cancellationTokenSource.CancelAfter(n);
+
+            CancellationTokenSource userCancellationTokenSource = new CancellationTokenSource();
+
             CancellationToken token = cancellationTokenSource.Token;
+            CancellationToken userToken = userCancellationTokenSource.Token;
+
 
             int id = new int();
             id = i;
@@ -26,6 +31,7 @@ namespace CompanyNameContest.Services
             Console.WriteLine($"run rep{id}");
 
             reportBuilder.SetToken(token);
+            reportBuilder.SetUserToken(userToken);
 
             var reportTask = Task.Run(() => reportBuilder.Build(), token);
 
@@ -44,6 +50,10 @@ namespace CompanyNameContest.Services
                 {
                     reporter.ReportTimeout(id);
                 }
+                else if (reportTask.Exception.GetBaseException().GetType() == typeof(UserCancelledException))
+                {
+                    reporter.ReportCancelled(id);          
+                }
                 else
                 {
                     reporter.ReportError(id);
@@ -54,7 +64,7 @@ namespace CompanyNameContest.Services
                 TaskScheduler.Current
             );
 
-            reports.Add(id, cancellationTokenSource);
+            reports.Add(id, userCancellationTokenSource);
 
             i++;
             return id;

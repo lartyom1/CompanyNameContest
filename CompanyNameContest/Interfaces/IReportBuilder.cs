@@ -3,8 +3,10 @@
     public interface IReportBuilder
     {
         public CancellationToken Token { get; set; }
+        public CancellationToken UserToken { get; set; }
         public byte[] Build();
         public void SetToken(CancellationToken tk) => Token = tk;
-    
+        public void SetUserToken(CancellationToken tk) => UserToken = tk;
+
     }
 }

@@ -26,6 +26,12 @@ namespace CompanyNameContest.Report
             WriteToFile($"Timeout_[{id}].txt", "Report error");
         }
 
+        public void ReportCancelled(int id)
+        {
+            Console.WriteLine($"user cancelled report id:{id}");
+            WriteToFile($"UserCancel_[{id}].txt", "Report cancelled");
+        }
+
         private void WriteToFile(string filename, string text)
         {
             if (!File.Exists(filename)) { File.Create(filename).Close(); }
