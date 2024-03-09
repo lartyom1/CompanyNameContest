@@ -1,7 +1,8 @@
-﻿using System.Runtime.Serialization;
-
-namespace CompanyNameContest.Report
+﻿namespace CompanyNameContest.Report
 {
+    /// <summary>
+    /// Отменен пользователем
+    /// </summary>
     public class UserCancelledException : Exception
     {
         public UserCancelledException() { }

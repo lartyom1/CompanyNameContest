@@ -1,32 +1,34 @@
 ﻿using CompanyNameContest.Interfaces;
 using CompanyNameContest.Report;
-using System.Threading.Tasks;
 
 namespace CompanyNameContest.Services
 {
+    /// <summary>
+    /// Сервис построителя отчетов
+    /// </summary>
     public class ReportService
     {
-        private Reporter reporter = new Reporter();
+        private readonly Reporter reporter = new();
+        private readonly Dictionary<int, CancellationTokenSource> reports = new();
 
-        private Dictionary<int, CancellationTokenSource> reports =
-        new Dictionary<int, CancellationTokenSource>();
-
-        private int i;
+        private int idCounter;
         private const int n = 30000; // less than 45k to hit timeout
-        //private const int n = 8000;
+
+        /// <summary>
+        /// Создание отчета
+        /// </summary>
+        /// <param name="reportBuilder"> Построитель отчетов </param>
+        /// <returns> id отчета </returns>
         public int Create(IReportBuilder reportBuilder)
         {
-            CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
-            cancellationTokenSource.CancelAfter(n);
+            var cancellationTokenSource = new CancellationTokenSource(n);
+            var userCancellationTokenSource = new CancellationTokenSource();
 
-            CancellationTokenSource userCancellationTokenSource = new CancellationTokenSource();
+            var token = cancellationTokenSource.Token;
+            var userToken = userCancellationTokenSource.Token;
 
-            CancellationToken token = cancellationTokenSource.Token;
-            CancellationToken userToken = userCancellationTokenSource.Token;
-
-
-            int id = new int();
-            id = i;
+            var id = new int();
+            id = idCounter;
 
             Console.WriteLine($"run rep{id}");
 
@@ -46,13 +48,13 @@ namespace CompanyNameContest.Services
 
             reportTask.ContinueWith(x =>
             {
-                if (reportTask.Exception.GetBaseException().GetType() == typeof(TaskCanceledException))
+                if (reportTask.Exception?.InnerException is TaskCanceledException)
                 {
                     reporter.ReportTimeout(id);
                 }
-                else if (reportTask.Exception.GetBaseException().GetType() == typeof(UserCancelledException))
+                else if (reportTask.Exception?.InnerException is UserCancelledException)
                 {
-                    reporter.ReportCancelled(id);          
+                    reporter.ReportCancelled(id);
                 }
                 else
                 {
@@ -60,19 +62,23 @@ namespace CompanyNameContest.Services
                 }
             },
                 CancellationToken.None,
-                TaskContinuationOptions.OnlyOnFaulted, // aka exception in task
+                TaskContinuationOptions.OnlyOnFaulted,
                 TaskScheduler.Current
             );
 
             reports.Add(id, userCancellationTokenSource);
 
-            i++;
+            idCounter++;
             return id;
         }
 
+        /// <summary>
+        /// Отмена построения отчета
+        /// </summary>
+        /// <param name="id"> id отменяемого отчета </param>
+        /// <exception cref="NoReportException"> Возникает если отчет отсутствует </exception>
         public void Terminate(int id)
         {
-
             if (reports.ContainsKey(id))
             {
                 reports[id].Cancel();
@@ -81,8 +87,6 @@ namespace CompanyNameContest.Services
             {
                 throw new NoReportException(id.ToString());
             }
-
         }
-
     }
 }
