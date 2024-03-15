@@ -9,7 +9,7 @@ namespace CompanyNameContest.Services
     public class ReportService
     {
         private readonly Reporter reporter = new();
-        private readonly Dictionary<int, CancellationTokenSource> reports = new();
+        private readonly Dictionary<int, CancellationTokenSource> reports = new();//THREADSAFETY
 
         private int idCounter;
         private const int n = 30000; // less than 45k to hit timeout
@@ -27,7 +27,7 @@ namespace CompanyNameContest.Services
             var token = cancellationTokenSource.Token;
             var userToken = userCancellationTokenSource.Token;
 
-            var id = new int();
+            var id = new int();//THREADSAFETY
             id = idCounter;
 
             Console.WriteLine($"run rep{id}");
